@@ -1,57 +1,11 @@
-<!doctype html>
-<html lang="hi">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Khabarnama - Latest News</title>
-<style>
-body{font-family:Arial,sans-serif;margin:0;background:#f4f4f4;color:#222}
-header{background:#b40000;color:white;padding:18px;text-align:center}
-nav{background:#222;padding:10px;display:flex;gap:8px;overflow:auto}
-nav button{background:#444;color:#fff;border:0;padding:9px 14px;border-radius:5px;white-space:nowrap}
-nav button.active{background:#d40000}
-main{max-width:1000px;margin:20px auto;padding:0 12px}
-#status{padding:10px;background:white;border-radius:6px;margin-bottom:15px}
-.card{background:#fff;margin:12px 0;padding:16px;border-radius:8px;box-shadow:0 1px 5px #ccc}
-.card h2{font-size:20px;margin:0 0 8px}
-.card a{color:#b40000;text-decoration:none;font-weight:bold}
-.meta{color:#777;font-size:13px;margin-bottom:8px}
-</style>
-</head>
-<body>
-<header><h1>📰 Khabarnama</h1><p>Latest News</p></header>
-<nav id="cats"></nav>
-<main>
-<div id="status">News loading...</div>
-<section id="news"></section>
-</main>
+<!doctype html><html lang="hi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#d71920"><title>Khabarnama News</title><style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial;background:#f3f4f6;color:#111}header{background:#d71920;color:white;padding:15px;position:sticky;top:0;z-index:3}.logo{font-size:25px;font-weight:bold}.sub{font-size:12px}.search{display:flex;margin-top:10px}.search input{flex:1;padding:11px;border:0;border-radius:7px 0 0 7px}.search button{border:0;background:#222;color:white;padding:0 14px;border-radius:0 7px 7px 0}nav{display:flex;gap:7px;overflow:auto;padding:10px;background:#fff;position:sticky;top:91px;z-index:2}nav button{border:0;padding:9px 13px;border-radius:20px;white-space:nowrap}nav .on{background:#d71920;color:#fff}main{max-width:850px;margin:auto;padding:14px}.hero,.card{background:#fff;border-radius:12px;padding:16px;margin:12px 0;box-shadow:0 1px 5px #ddd}.hero{background:#222;color:#fff}.card h2{font-size:19px}.meta{font-size:12px;color:#777}.card p{line-height:1.5;color:#444}.read{background:#d71920;color:#fff;text-decoration:none;padding:8px 12px;border-radius:6px;display:inline-block}footer{text-align:center;padding:25px;color:#777}</style></head><body>
+<header><div class="logo">📰 Khabarnama</div><div class="sub">हर खबर, एक जगह</div><div class="search"><input id="q" placeholder="खबर खोजें..."><button onclick="load()">खोजें</button></div></header><nav id="nav"></nav><main><div class="hero"><h1>आज की ताज़ा खबरें</h1><p>भारत • मध्य प्रदेश • दुनिया • खेल • मनोरंजन • बिज़नेस • टेक</p></div><div id="status">खबरें लोड हो रही हैं...</div><section id="news"></section></main><footer>© Khabarnama</footer>
 <script>
-const categories=["All","India","Madhya Pradesh","World","Sports","Entertainment","Business","Technology"];
-let selected="All";
-const cats=document.getElementById("cats");
-categories.forEach(c=>{
- const b=document.createElement("button"); b.textContent=c;
- b.onclick=()=>{selected=c; renderButtons(); loadNews();}; cats.appendChild(b);
-});
-function renderButtons(){[...cats.children].forEach((b,i)=>b.classList.toggle("active",categories[i]===selected));}
-async function loadNews(){
- document.getElementById("status").textContent="Latest news loading...";
- try{
-  const r=await fetch("news.json?"+Date.now());
-  const data=await r.json();
-  const items=selected==="All"?data:data.filter(x=>x.category===selected);
-  document.getElementById("status").textContent=`${items.length} news found • Last update: ${data.updated||"recent"}`;
-  document.getElementById("news").innerHTML=items.map(x=>`
-   <article class="card">
-    <div class="meta">${x.category||"News"} • ${x.source||""} • ${x.date||""}</div>
-    <h2>${escapeHtml(x.title)}</h2>
-    <p>${escapeHtml(x.description||"")}</p>
-    <a href="${x.url}" target="_blank" rel="noopener">पूरी खबर पढ़ें →</a>
-   </article>`).join("") || "<div class='card'>इस category में अभी खबर नहीं है।</div>";
- }catch(e){document.getElementById("status").textContent="News file load नहीं हो पाई। GitHub Actions चलने के बाद फिर देखें।";}
-}
-function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));}
-renderButtons();loadNews();
-</script>
-</body>
-</html>
+const cats=["All","India","Madhya Pradesh","World","Sports","Entertainment","Business","Technology"];let cat="All";
+nav.innerHTML=cats.map(c=>`<button onclick="cat='${c}';buttons();load()">${c==="All"?"सभी खबरें":c}</button>`).join("");
+function buttons(){[...nav.children].forEach((b,i)=>b.classList.toggle("on",cats[i]===cat))}
+function esc(s){return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+async function load(){buttons();try{let d=await(await fetch("news.json?"+Date.now())).json(),q=document.getElementById("q").value.toLowerCase(),a=d.filter(x=>(cat==="All"||x.category===cat)&&(!q||(x.title+x.description).toLowerCase().includes(q)));status.textContent=a.length+" खबरें";news.innerHTML=a.map(x=>`<article class="card"><div class="meta">${esc(x.category)} • ${esc(x.source)} • ${esc(x.date)}</div><h2>${esc(x.title)}</h2><p>${esc(x.description)}</p><a class="read" href="${esc(x.url)}" target="_blank">पूरी खबर पढ़ें →</a></article>`).join("")||"<div class='card'>कोई खबर नहीं मिली।</div>"}catch(e){status.textContent="News अभी उपलब्ध नहीं है।"}}
+load();
+</script></body></html>
